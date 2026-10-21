@@ -1,0 +1,4 @@
+Architecture Rules for AGP 9+ Multi-Module:
+1. Place shared UI, ViewModels, Models, and Network logic inside `:shared` (`shared/src/commonMain/kotlin/`).
+2. Do NOT import `android.*` inside `commonMain`.
+3. Use Version Catalog (`gradle/libs.versions.toml`) for all dependencies.

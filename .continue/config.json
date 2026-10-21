@@ -1,0 +1,13 @@
+{
+  "env": {
+    "PROJECT_TYPE": "Kotlin Multiplatform"
+  },
+  "customCommands": [
+    {
+      "name": "check-build",
+      "description": "Run Gradle build check",
+      "prompt": "Run ./gradlew check and fix any Kotlin compilation errors."
+    }
+  ],
+  "systemMessage": "You are a senior Kotlin Multiplatform (KMP) engineer. Follow clean MVVM architecture using Compose Multiplatform and Ktor in commonMain."
+}
