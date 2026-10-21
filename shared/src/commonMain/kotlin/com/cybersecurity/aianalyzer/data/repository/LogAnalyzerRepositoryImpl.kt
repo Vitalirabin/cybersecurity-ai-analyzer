@@ -6,12 +6,12 @@ import com.cybersecurity.aianalyzer.model.RiskLevel
 import com.cybersecurity.aianalyzer.model.Vulnerability
 
 class LogAnalyzerRepositoryImpl(
-    private val aiApiClient: AiApiClient = AiApiClient()
+    private val aiApiClient: AiApiClient
 ) : LogAnalyzerRepository {
 
-    override suspend fun analyzeLogs(logs: String): Result<List<Vulnerability>> {
+    override suspend fun analyzeLogs(logs: String, apiKey: String): Result<List<Vulnerability>> {
         return runCatching {
-            val dtos = aiApiClient.analyzeLogs(logs)
+            val dtos = aiApiClient.analyzeLogs(logs = logs, apiKey = apiKey)
             dtos.map { dto ->
                 Vulnerability(
                     description = dto.description,

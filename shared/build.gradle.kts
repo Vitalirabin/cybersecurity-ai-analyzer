@@ -86,12 +86,17 @@ kotlin {
                 implementation(libs.ktor.client.content.negotiation)
                 implementation(libs.ktor.serialization.kotlinx.json)
                 implementation(libs.kotlinx.coroutines.core)
+
+                api(libs.koin.core)
+                api(libs.koin.compose)
+                api(libs.koin.compose.viewmodel)
             }
         }
 
         androidMain.dependencies {
             implementation(libs.ui.tooling)
             implementation(libs.ktor.client.cio)
+            implementation(libs.koin.android.sdk)
         }
 
         getByName("desktopMain").dependencies {

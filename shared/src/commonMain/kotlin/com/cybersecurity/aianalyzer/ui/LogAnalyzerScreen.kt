@@ -10,15 +10,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.cybersecurity.aianalyzer.data.remote.AiApiClient
+import com.cybersecurity.aianalyzer.data.repository.LogAnalyzerRepositoryImpl
+import com.cybersecurity.aianalyzer.domain.usecase.AnalyzeLogsUseCase
 import kotlinx.coroutines.launch
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun LogAnalyzerScreen() {
-    val viewModel = remember { LogAnalyzerViewModel() }
+fun LogAnalyzerScreen(
+    modifier: Modifier = Modifier,
+    viewModel: LogAnalyzerViewModel = koinViewModel()
+) {
     val scope = rememberCoroutineScope()
 
     Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
+        modifier = modifier.fillMaxSize().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         OutlinedTextField(
@@ -72,9 +78,18 @@ fun LogAnalyzerScreen() {
 @Preview
 @Composable
 fun LogAnalyzerScreenPreview() {
+    val viewModel = remember {
+        LogAnalyzerViewModel(
+            analyzeLogsUseCase = AnalyzeLogsUseCase(
+                repository = LogAnalyzerRepositoryImpl(
+                    aiApiClient = AiApiClient()
+                )
+            )
+        )
+    }
     MaterialTheme {
         Surface {
-            LogAnalyzerScreen()
+            LogAnalyzerScreen(viewModel = viewModel)
         }
     }
 }

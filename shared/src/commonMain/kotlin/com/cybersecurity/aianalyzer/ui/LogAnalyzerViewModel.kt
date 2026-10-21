@@ -3,14 +3,15 @@ package com.cybersecurity.aianalyzer.ui
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.cybersecurity.aianalyzer.data.repository.LogAnalyzerRepositoryImpl
+import androidx.lifecycle.ViewModel
 import com.cybersecurity.aianalyzer.domain.usecase.AnalyzeLogsUseCase
 import com.cybersecurity.aianalyzer.model.Vulnerability
 
 class LogAnalyzerViewModel(
-    private val analyzeLogsUseCase: AnalyzeLogsUseCase = AnalyzeLogsUseCase(LogAnalyzerRepositoryImpl())
-) {
+    private val analyzeLogsUseCase: AnalyzeLogsUseCase
+) : ViewModel() {
     var logs by mutableStateOf("")
+    var apiKey by mutableStateOf("")
     var isLoading by mutableStateOf(false)
     var errorMessage by mutableStateOf<String?>(null)
     var results by mutableStateOf<List<Vulnerability>>(emptyList())
@@ -21,7 +22,7 @@ class LogAnalyzerViewModel(
         errorMessage = null
         results = emptyList()
 
-        val result = analyzeLogsUseCase(logs)
+        val result = analyzeLogsUseCase(logs, apiKey)
         result.fold(
             onSuccess = { vulnerabilities ->
                 results = vulnerabilities
