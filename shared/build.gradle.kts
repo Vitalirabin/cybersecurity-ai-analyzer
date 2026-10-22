@@ -67,9 +67,9 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_17)
         }
     }
-    
+
     jvm("desktop")
-    
+
     sourceSets {
         commonMain {
             kotlin.srcDir(generateConfigTask)
@@ -90,6 +90,7 @@ kotlin {
                 api(libs.koin.core)
                 api(libs.koin.compose)
                 api(libs.koin.compose.viewmodel)
+                api(libs.koin.logger.slf4j)
             }
         }
 

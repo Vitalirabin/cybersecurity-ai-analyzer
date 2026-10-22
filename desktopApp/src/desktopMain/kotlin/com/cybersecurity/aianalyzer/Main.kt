@@ -4,10 +4,13 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import com.cybersecurity.aianalyzer.di.initKoin
 import org.koin.core.context.GlobalContext
+import org.koin.logger.slf4jLogger
 
 fun main() {
     if (GlobalContext.getOrNull() == null) {
-        initKoin()
+        initKoin {
+            slf4jLogger()
+        }
     }
     application {
         Window(

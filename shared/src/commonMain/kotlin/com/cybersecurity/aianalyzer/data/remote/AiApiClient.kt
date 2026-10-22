@@ -6,23 +6,22 @@ import com.cybersecurity.aianalyzer.data.dto.ChatCompletionResponse
 import com.cybersecurity.aianalyzer.data.dto.ChatMessage
 import com.cybersecurity.aianalyzer.data.dto.VulnerabilityDto
 import io.ktor.client.HttpClient
-import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
-class AiApiClient(
-    private val apiKey: String = AppConfig.OPENROUTER_API_KEY,
-    private val baseUrl: String = "https://openrouter.ai/api/v1/chat/completions",
-    private val model: String = "google/gemma-4-26b-a4b-it",
+class AiApiClient {
+    private val apiKey: String = AppConfig.OPENROUTER_API_KEY
+    private val baseUrl: String = "https://openrouter.ai/api/v1/chat/completions"
+    private val model: String = "nvidia/nemotron-3-ultra-550b-a55b:free"
     private val httpClient: HttpClient = createDefaultHttpClient()
-) {
     suspend fun analyzeLogs(
         logs: String,
         apiKey: String = this.apiKey,
@@ -40,7 +39,19 @@ class AiApiClient(
             [{"description": "SQL Injection pattern detected", "risk": "High"}]
         """.trimIndent()
 
-        val response: ChatCompletionResponse = httpClient.post(baseUrl) {
+        println("AiApiClient: Sending request to model '$model' with logs length ${logs.length}, apiKey provided: ${effectiveKey.isNotBlank()}")
+        val chatRequest = ChatCompletionRequest(
+            model = model,
+            messages = listOf(
+                ChatMessage(role = "system", content = systemPrompt),
+                ChatMessage(role = "user", content = logs)
+            )
+        )
+
+        val requestBodyJson = jsonFormat.encodeToString(chatRequest)
+        println("AiApiClient: Request JSON: $requestBodyJson")
+
+        val httpResponse = httpClient.post(baseUrl) {
             contentType(ContentType.Application.Json)
             if (effectiveKey.isNotBlank()) {
                 header(HttpHeaders.Authorization, "Bearer $effectiveKey")
@@ -48,19 +59,20 @@ class AiApiClient(
             header("HTTP-Referer", "https://github.com/cybersecurity-ai-analyzer")
             header("X-Title", "Cybersecurity AI Analyzer")
 
-            setBody(
-                ChatCompletionRequest(
-                    model = model,
-                    messages = listOf(
-                        ChatMessage(role = "system", content = systemPrompt),
-                        ChatMessage(role = "user", content = logs)
-                    )
-                )
-            )
-        }.body()
+            setBody(chatRequest)
+        }
+
+        val responseBodyText = httpResponse.bodyAsText()
+        println("AiApiClient: Received raw response text: $responseBodyText")
+
+        val response: ChatCompletionResponse = jsonFormat.decodeFromString(responseBodyText)
 
         val content = response.choices?.firstOrNull()?.message?.content
-            ?: throw IllegalStateException("Empty response from AI model")
+        println("AiApiClient: Extracted content: $content")
+
+        if (content.isNullOrBlank()) {
+            throw IllegalStateException("Empty response from AI model ($model)")
+        }
 
         return parseVulnerabilitiesJson(content)
     }
@@ -72,7 +84,18 @@ class AiApiClient(
             .removeSuffix("```")
             .trim()
 
-        return jsonFormat.decodeFromString<List<VulnerabilityDto>>(cleanedJson)
+        println("AiApiClient: Parsing JSON text: '$cleanedJson'")
+
+        return try {
+            jsonFormat.decodeFromString<List<VulnerabilityDto>>(cleanedJson)
+        } catch (e: Exception) {
+            println("AiApiClient: Failed to parse JSON directly: ${e.message}. Treating as descriptive response.")
+            if (cleanedJson.isNotBlank()) {
+                listOf(VulnerabilityDto(description = cleanedJson, risk = "Low"))
+            } else {
+                emptyList()
+            }
+        }
     }
 
     companion object {

@@ -13,6 +13,8 @@ kotlin {
         getByName("desktopMain").dependencies {
             implementation(project(":shared"))
             implementation(compose.desktop.currentOs)
+            implementation(libs.logback.classic)
+            implementation(libs.koin.logger.slf4j)
         }
     }
 }

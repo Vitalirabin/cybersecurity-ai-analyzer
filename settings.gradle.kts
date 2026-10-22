@@ -1,7 +1,7 @@
 pluginManagement {
     repositories {
-        google()
         mavenCentral()
+        google()
         gradlePluginPortal()
     }
 }
@@ -10,8 +10,8 @@ plugins {
 }
 dependencyResolutionManagement {
     repositories {
-        google()
         mavenCentral()
+        google()
     }
 }
 
@@ -19,3 +19,4 @@ rootProject.name = "cybersecurity-ai-analyzer"
 include(":shared")
 include(":androidApp")
 include(":desktopApp")
+include(":server")
