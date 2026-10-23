@@ -11,7 +11,6 @@ class LogAnalyzerViewModel(
     private val analyzeLogsUseCase: AnalyzeLogsUseCase
 ) : ViewModel() {
     var logs by mutableStateOf("")
-    var apiKey by mutableStateOf("")
     var isLoading by mutableStateOf(false)
     var errorMessage by mutableStateOf<String?>(null)
     var results by mutableStateOf<List<Vulnerability>>(emptyList())
@@ -22,7 +21,7 @@ class LogAnalyzerViewModel(
         errorMessage = null
         results = emptyList()
 
-        val result = analyzeLogsUseCase(logs, apiKey)
+        val result = analyzeLogsUseCase(logs)
         result.fold(
             onSuccess = { vulnerabilities ->
                 results = vulnerabilities

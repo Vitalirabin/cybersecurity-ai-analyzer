@@ -18,11 +18,11 @@ class RemoteLogAnalyzerRepositoryImpl(
     private val httpClient: HttpClient = AiApiClient.createDefaultHttpClient()
 ) : LogAnalyzerRepository {
 
-    override suspend fun analyzeLogs(logs: String, apiKey: String): Result<List<Vulnerability>> {
+    override suspend fun analyzeLogs(logs: String): Result<List<Vulnerability>> {
         return runCatching {
             val response: AnalyzeLogsResponse = httpClient.post("$serverUrl/api/analyze-logs") {
                 contentType(ContentType.Application.Json)
-                setBody(AnalyzeLogsRequest(logs = logs, apiKey = apiKey))
+                setBody(AnalyzeLogsRequest(logs = logs))
             }.body()
 
             if (response.error != null) {

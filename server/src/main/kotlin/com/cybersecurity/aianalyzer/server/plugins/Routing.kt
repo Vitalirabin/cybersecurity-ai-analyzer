@@ -19,10 +19,10 @@ fun Application.configureRouting() {
         post("/api/analyze-logs") {
             try {
                 val request = call.receive<AnalyzeLogsRequest>()
-                log.info("Received analyze-logs request. Logs length: ${request.logs.length}, apiKey provided: ${request.apiKey.isNotBlank()}")
+                log.info("Received analyze-logs request. Logs length: ${request.logs.length}")
                 log.info("Request logs content:\n${request.logs}")
 
-                val result = analyzeLogsUseCase(request.logs, request.apiKey)
+                val result = analyzeLogsUseCase(request.logs)
 
                 result.fold(
                     onSuccess = { vulnerabilities ->

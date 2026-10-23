@@ -93,22 +93,21 @@ FALLBACK_MODELS=google/gemma-4-31b-it:free,thinkingmachines/inkling-small:free,n
 
 ### Примеры взаимодействия с API
 
-````carousel
-### cURL (Terminal)
+Вы можете использовать любой удобный HTTP-клиент:
+
+#### 1. cURL (Terminal)
 ```bash
 curl -X POST http://localhost:8080/api/analyze-logs \
   -H "Content-Type: application/json" \
   -d '{
-    "logs": "SELECT * FROM users WHERE name = '\''admin'\'' --",
-    "apiKey": ""
+    "logs": "SELECT * FROM users WHERE name = '\''admin'\'' --"
   }'
 ```
-<!-- slide -->
-### PowerShell (Windows)
+
+#### 2. PowerShell (Windows)
 ```powershell
 $body = @{
     logs = "SELECT * FROM users WHERE id = 1 OR 1=1;"
-    apiKey = ""
 } | ConvertTo-Json
 
 Invoke-RestMethod -Uri "http://localhost:8080/api/analyze-logs" `
@@ -116,26 +115,23 @@ Invoke-RestMethod -Uri "http://localhost:8080/api/analyze-logs" `
     -Body $body `
     -ContentType "application/json"
 ```
-<!-- slide -->
-### Python (requests)
+
+#### 3. Python (requests)
 ```python
 import requests
 
 url = "http://localhost:8080/api/analyze-logs"
 payload = {
-    "logs": "GET /admin/config.php?file=../../etc/passwd HTTP/1.1",
-    "apiKey": ""
+    "logs": "GET /admin/config.php?file=../../etc/passwd HTTP/1.1"
 }
 
 response = requests.post(url, json=payload)
 print(response.json())
 ```
-<!-- slide -->
-### Postman / Insomnia (JSON Body)
+
+#### 4. Postman / Insomnia (JSON Body)
 ```json
 {
-  "logs": "Unencrypted connection over http://example.com/api/login transmitting password in cleartext.",
-  "apiKey": ""
+  "logs": "Unencrypted connection over http://example.com/api/login transmitting password in cleartext."
 }
 ```
-````

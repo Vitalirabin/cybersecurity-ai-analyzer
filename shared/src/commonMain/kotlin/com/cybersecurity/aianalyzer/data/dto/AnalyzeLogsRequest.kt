@@ -4,6 +4,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class AnalyzeLogsRequest(
-    val logs: String,
-    val apiKey: String = ""
+    val logs: String
 )
