@@ -19,6 +19,18 @@ plugins {
 abstract class GenerateConfigTask : DefaultTask() {
     @get:Input
     abstract val openRouterApiKey: Property<String>
+    @get:Input
+    abstract val cloudBaseUrl: Property<String>
+    @get:Input
+    abstract val cloudModel: Property<String>
+    @get:Input
+    abstract val ollamaBaseUrl: Property<String>
+    @get:Input
+    abstract val ollamaModel: Property<String>
+    @get:Input
+    abstract val smallLogThreshold: Property<Int>
+    @get:Input
+    abstract val fallbackModelsStr: Property<String>
 
     @get:OutputDirectory
     abstract val outputDir: DirectoryProperty
@@ -26,6 +38,17 @@ abstract class GenerateConfigTask : DefaultTask() {
     @TaskAction
     fun generate() {
         val key = openRouterApiKey.getOrElse("")
+        val cloudUrl = cloudBaseUrl.getOrElse("")
+        val cloudMod = cloudModel.getOrElse("")
+        val ollamaUrl = ollamaBaseUrl.getOrElse("")
+        val ollamaMod = ollamaModel.getOrElse("")
+        val threshold = smallLogThreshold.getOrElse(500)
+        val fallbacks = fallbackModelsStr.getOrElse("")
+            .split(",")
+            .map { it.trim() }
+            .filter { it.isNotBlank() }
+            .joinToString(separator = "\", \"") { it }
+
         val file = outputDir.get().file("com/cybersecurity/aianalyzer/config/AppConfig.kt").asFile
         file.parentFile.mkdirs()
         file.writeText(
@@ -34,25 +57,36 @@ abstract class GenerateConfigTask : DefaultTask() {
 
             object AppConfig {
                 const val OPENROUTER_API_KEY: String = "$key"
+                const val CLOUD_BASE_URL: String = "$cloudUrl"
+                const val CLOUD_MODEL: String = "$cloudMod"
+                const val OLLAMA_BASE_URL: String = "$ollamaUrl"
+                const val OLLAMA_MODEL: String = "$ollamaMod"
+                const val SMALL_LOG_THRESHOLD: Int = $threshold
+                val FALLBACK_MODELS: List<String> = listOf("$fallbacks")
             }
             """.trimIndent()
         )
     }
 }
 
-val openRouterApiKeyProvider = providers.provider {
+val localPropertiesProvider = providers.provider {
     val localProperties = Properties()
     val localPropertiesFile = rootProject.file("local.properties")
     if (localPropertiesFile.exists()) {
         localPropertiesFile.inputStream().use { localProperties.load(it) }
     }
-    localProperties.getProperty("OPENROUTER_API_KEY")
-        ?: System.getenv("OPENROUTER_API_KEY")
-        ?: ""
+    localProperties
 }
 
 val generateConfigTask = tasks.register<GenerateConfigTask>("generateConfig") {
-    openRouterApiKey.set(openRouterApiKeyProvider)
+    openRouterApiKey.set(localPropertiesProvider.map { it.getProperty("OPENROUTER_API_KEY") ?: System.getenv("OPENROUTER_API_KEY") ?: "" })
+    cloudBaseUrl.set(localPropertiesProvider.map { it.getProperty("CLOUD_BASE_URL") ?: System.getenv("CLOUD_BASE_URL") ?: "" })
+    cloudModel.set(localPropertiesProvider.map { it.getProperty("CLOUD_MODEL") ?: System.getenv("CLOUD_MODEL") ?: "" })
+    ollamaBaseUrl.set(localPropertiesProvider.map { it.getProperty("OLLAMA_BASE_URL") ?: System.getenv("OLLAMA_BASE_URL") ?: "" })
+    ollamaModel.set(localPropertiesProvider.map { it.getProperty("OLLAMA_MODEL") ?: System.getenv("OLLAMA_MODEL") ?: "" })
+    smallLogThreshold.set(localPropertiesProvider.map { it.getProperty("SMALL_LOG_THRESHOLD")?.toIntOrNull() ?: System.getenv("SMALL_LOG_THRESHOLD")?.toIntOrNull() ?: 500 })
+    fallbackModelsStr.set(localPropertiesProvider.map { it.getProperty("FALLBACK_MODELS") ?: System.getenv("FALLBACK_MODELS") ?: "" })
+
     outputDir.set(layout.buildDirectory.dir("generated/source/config/commonMain/kotlin"))
 }
 

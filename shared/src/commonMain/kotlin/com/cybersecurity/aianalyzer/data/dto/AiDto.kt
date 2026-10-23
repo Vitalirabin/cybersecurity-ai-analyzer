@@ -1,5 +1,6 @@
 package com.cybersecurity.aianalyzer.data.dto
 
+import com.cybersecurity.aianalyzer.config.AppConfig
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -14,17 +15,23 @@ data class ChatMessage(
 @Serializable
 data class ChatCompletionRequest(
     @SerialName("model")
-    val model: String = "nvidia/nemotron-3-ultra-550b-a55b:free",
+    val model: String? = AppConfig.CLOUD_MODEL,
+    @SerialName("models")
+    val models: List<String>? = null,
     @SerialName("messages")
     val messages: List<ChatMessage>,
     @SerialName("temperature")
-    val temperature: Double = 0.2
+    val temperature: Double = 0.2,
+    @SerialName("stream")
+    val stream: Boolean = false
 )
 
 @Serializable
 data class ChatCompletionResponse(
     @SerialName("choices")
-    val choices: List<Choice>? = null
+    val choices: List<Choice>? = null,
+    @SerialName("message")
+    val message: ChatMessage? = null
 )
 
 @Serializable
