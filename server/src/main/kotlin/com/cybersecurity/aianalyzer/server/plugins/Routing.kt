@@ -2,7 +2,7 @@ package com.cybersecurity.aianalyzer.server.plugins
 
 import com.cybersecurity.aianalyzer.data.dto.AnalyzeLogsRequest
 import com.cybersecurity.aianalyzer.data.dto.AnalyzeLogsResponse
-import com.cybersecurity.aianalyzer.domain.repository.LogAnalyzerRepository
+import com.cybersecurity.aianalyzer.domain.usecase.AnalyzeLogsUseCase
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.log
@@ -13,7 +13,7 @@ import io.ktor.server.routing.routing
 import org.koin.ktor.ext.inject
 
 fun Application.configureRouting() {
-    val repository: LogAnalyzerRepository by inject()
+    val analyzeLogsUseCase: AnalyzeLogsUseCase by inject()
 
     routing {
         post("/api/analyze-logs") {
@@ -22,7 +22,7 @@ fun Application.configureRouting() {
                 log.info("Received analyze-logs request. Logs length: ${request.logs.length}, apiKey provided: ${request.apiKey.isNotBlank()}")
                 log.info("Request logs content:\n${request.logs}")
 
-                val result = repository.analyzeLogs(request.logs, request.apiKey)
+                val result = analyzeLogsUseCase(request.logs, request.apiKey)
 
                 result.fold(
                     onSuccess = { vulnerabilities ->
