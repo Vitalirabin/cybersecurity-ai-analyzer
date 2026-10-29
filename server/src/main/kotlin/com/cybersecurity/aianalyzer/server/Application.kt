@@ -14,6 +14,7 @@ fun main() {
 }
 
 fun Application.module() {
+    com.cybersecurity.aianalyzer.server.db.DatabaseFactory.init()
     configureKoin()
     configureSerialization()
     configureHTTP()
