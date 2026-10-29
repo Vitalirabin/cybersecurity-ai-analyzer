@@ -119,6 +119,7 @@ kotlin {
                 implementation(compose.material3)
                 implementation(compose.ui)
 
+                implementation("org.jetbrains.compose.material:material-icons-extended:1.7.3")
                 implementation(libs.androidx.lifecycle.viewmodel.compose)
                 implementation(libs.ktor.client.core)
                 implementation(libs.ktor.client.content.negotiation)

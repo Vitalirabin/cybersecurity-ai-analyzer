@@ -17,6 +17,7 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun LogAnalyzerScreen(
+    strings: Strings,
     modifier: Modifier = Modifier,
     viewModel: LogAnalyzerViewModel = koinViewModel()
 ) {
@@ -30,8 +31,8 @@ fun LogAnalyzerScreen(
             value = viewModel.logs,
             onValueChange = { viewModel.logs = it },
             modifier = Modifier.fillMaxWidth().height(200.dp),
-            label = { Text("Insert logs or code here") },
-            placeholder = { Text("Paste system logs...") }
+            label = { Text(strings.insertLogsHint) },
+            placeholder = { Text(strings.pasteLogsPlaceholder) }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -44,7 +45,7 @@ fun LogAnalyzerScreen(
             if (viewModel.isLoading) {
                 CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White)
             } else {
-                Text("Check Vulnerabilities")
+                Text(strings.checkVulnerabilities)
             }
         }
 
@@ -88,7 +89,7 @@ fun LogAnalyzerScreenPreview() {
     }
     MaterialTheme {
         Surface {
-            LogAnalyzerScreen(viewModel = viewModel)
+            LogAnalyzerScreen(strings = EnglishStrings, viewModel = viewModel)
         }
     }
 }
