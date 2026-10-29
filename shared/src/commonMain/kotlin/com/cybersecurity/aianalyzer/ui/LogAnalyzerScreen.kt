@@ -9,15 +9,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.cybersecurity.aianalyzer.data.remote.AiApiClient
-import com.cybersecurity.aianalyzer.data.repository.LogAnalyzerRepositoryImpl
-import com.cybersecurity.aianalyzer.domain.usecase.AnalyzeLogsUseCase
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun LogAnalyzerScreen(
     strings: Strings,
+    maxHistoryLimit: Int,
     modifier: Modifier = Modifier,
     viewModel: LogAnalyzerViewModel = koinViewModel()
 ) {
@@ -38,7 +36,11 @@ fun LogAnalyzerScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = { scope.launch { viewModel.analyzeLogs() } },
+            onClick = {
+                scope.launch {
+                    viewModel.analyzeLogs(maxHistoryLimit)
+                }
+            },
             enabled = !viewModel.isLoading && viewModel.logs.isNotBlank(),
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -71,25 +73,6 @@ fun LogAnalyzerScreen(
                 VulnerabilityCard(vulnerability)
                 Spacer(modifier = Modifier.height(8.dp))
             }
-        }
-    }
-}
-
-//@Preview
-@Composable
-fun LogAnalyzerScreenPreview() {
-    val viewModel = remember {
-        LogAnalyzerViewModel(
-            analyzeLogsUseCase = AnalyzeLogsUseCase(
-                repository = LogAnalyzerRepositoryImpl(
-                    aiApiClient = AiApiClient()
-                )
-            )
-        )
-    }
-    MaterialTheme {
-        Surface {
-            LogAnalyzerScreen(strings = EnglishStrings, viewModel = viewModel)
         }
     }
 }

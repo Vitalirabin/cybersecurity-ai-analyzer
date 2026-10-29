@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import org.koin.compose.viewmodel.koinViewModel
 
 enum class AppLanguage(val title: String) {
     EN("English"),
@@ -28,6 +29,7 @@ enum class AppThemeColor(val title: String, val color: Color) {
 class SettingsState {
     var selectedLanguage by mutableStateOf(AppLanguage.EN)
     var selectedColor by mutableStateOf(AppThemeColor.PURPLE)
+    var historyLimit by mutableStateOf(10)
 
     val strings: Strings
         get() = getStrings(selectedLanguage)
@@ -35,9 +37,10 @@ class SettingsState {
 
 @Composable
 fun SettingsScreen(
-    settingsState: SettingsState,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: SettingsViewModel = koinViewModel()
 ) {
+    val settingsState = viewModel.settingsState
     val strings = settingsState.strings
 
     Column(
@@ -126,6 +129,39 @@ fun SettingsScreen(
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
+                        }
+                    }
+                }
+            }
+        }
+
+        // History limit selection
+        Card(
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(
+                    text = "${strings.historyLimit}: ${settingsState.historyLimit}",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    listOf(5, 10, 20, 50).forEach { limit ->
+                        val selected = settingsState.historyLimit == limit
+                        Button(
+                            onClick = { settingsState.historyLimit = limit },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
+                                contentColor = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
+                            ),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(limit.toString())
                         }
                     }
                 }

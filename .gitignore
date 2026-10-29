@@ -1,0 +1,13 @@
+*.iml
+.gradle
+/build
+/androidApp/build
+/desktopApp/build
+/webApp/build
+/shared/build
+/server/build
+local.properties
+.idea/
+.DS_Store
+.aider*
+.kotlin

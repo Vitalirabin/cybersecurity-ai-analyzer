@@ -4,5 +4,6 @@
 - `:shared` - Cross-platform UI and business logic in `shared/src/commonMain/kotlin/`.
 - `:androidApp` - Android entry point.
 - `:desktopApp` - Desktop entry point.
+- `:webApp` - Web entry point.
 - `:server` - Server entry point.
 

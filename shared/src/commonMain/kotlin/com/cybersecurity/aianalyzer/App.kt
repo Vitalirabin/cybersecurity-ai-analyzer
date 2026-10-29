@@ -1,20 +1,21 @@
 package com.cybersecurity.aianalyzer
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import com.cybersecurity.aianalyzer.ui.AppThemeColor
-import com.cybersecurity.aianalyzer.ui.LogAnalyzerScreen
-import com.cybersecurity.aianalyzer.ui.SettingsScreen
-import com.cybersecurity.aianalyzer.ui.SettingsState
+import com.cybersecurity.aianalyzer.ui.*
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun App() {
-    val settingsState = remember { SettingsState() }
+    val settingsViewModel: SettingsViewModel = koinViewModel()
+    val settingsState = settingsViewModel.settingsState
     val strings = settingsState.strings
 
     val colorScheme = when (settingsState.selectedColor) {
@@ -25,9 +26,11 @@ fun App() {
     }
 
     var selectedTab by remember { mutableStateOf(0) }
+    val analyzerViewModel: LogAnalyzerViewModel = koinViewModel()
 
     MaterialTheme(colorScheme = colorScheme) {
         Scaffold(
+            modifier = Modifier.fillMaxSize(),
             bottomBar = {
                 NavigationBar {
                     NavigationBarItem(
@@ -37,10 +40,16 @@ fun App() {
                         onClick = { selectedTab = 0 }
                     )
                     NavigationBarItem(
-                        icon = { Icon(Icons.Default.Settings, contentDescription = null) },
-                        label = { Text(strings.settingsTab) },
+                        icon = { Icon(Icons.Default.History, contentDescription = null) },
+                        label = { Text(strings.historyTab) },
                         selected = selectedTab == 1,
                         onClick = { selectedTab = 1 }
+                    )
+                    NavigationBarItem(
+                        icon = { Icon(Icons.Default.Settings, contentDescription = null) },
+                        label = { Text(strings.settingsTab) },
+                        selected = selectedTab == 2,
+                        onClick = { selectedTab = 2 }
                     )
                 }
             }
@@ -48,11 +57,22 @@ fun App() {
             when (selectedTab) {
                 0 -> LogAnalyzerScreen(
                     strings = strings,
+                    maxHistoryLimit = settingsState.historyLimit,
+                    modifier = Modifier.padding(paddingValues),
+                    viewModel = analyzerViewModel
+                )
+                1 -> HistoryScreen(
+                    onSelectItem = { item ->
+                        analyzerViewModel.logs = item.fullLogs
+                        analyzerViewModel.results = item.vulnerabilities
+                        selectedTab = 0
+                    },
+                    strings = strings,
                     modifier = Modifier.padding(paddingValues)
                 )
-                1 -> SettingsScreen(
-                    settingsState = settingsState,
-                    modifier = Modifier.padding(paddingValues)
+                2 -> SettingsScreen(
+                    modifier = Modifier.padding(paddingValues),
+                    viewModel = settingsViewModel
                 )
             }
         }
