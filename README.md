@@ -17,8 +17,10 @@
   - Мобильное клиентское приложение под Android, использующее общую логику из `:shared`.
 * **`:desktopApp` (Desktop Target / JVM)**:
   - Десктопное клиентское приложение (Windows, macOS, Linux) на базе Compose Desktop.
+* **`:webApp` (Web Target / Wasm-JS)**:
+  - Браузерное клиентское приложение на базе Compose Multiplatform for Wasm, взаимодействующее с сервером по REST API.
 * **`:server` (Ktor Backend Target / JVM)**:
-  - Серверная часть приложения, инкапсулирующая взаимодействие с AI-провайдерами и обрабатывающая запросы клиентов.
+  - Серверная часть приложения, инкапсулирующая взаимодействие с AI-провайдерами и обрабатывающая запросы клиентов (работает на порту `8070`).
 
 ---
 
@@ -30,7 +32,28 @@
 2. **Отказоустойчивость и резервное копирование (Fallback)**:
    - Если основной эндпоинт или модель недоступны, система автоматически переключается на альтернативные варианты из списка резервных моделей.
 3. **Кроссплатформенность**:
-   - Общая логика и UI переиспользуются между Android, Desktop и Server.
+   - Общая логика и UI переиспользуются между Android, Desktop, Web и Server.
+
+---
+
+## Запуск проекта
+
+### 1. Запуск бэкенд-сервера
+Сервер запускается на `http://localhost:8070`:
+```bash
+./gradlew :server:run
+```
+
+### 2. Запуск клиентов
+* **Android**: Откройте проект в Android Studio и запустите модуль `:androidApp` на эмуляторе или устройстве.
+* **Desktop (ПК)**:
+  ```bash
+  ./gradlew :desktopApp:run
+  ```
+* **Web (Браузер)**:
+  ```bash
+  ./gradlew :webApp:wasmJsBrowserDevelopmentRun
+  ```
 
 ---
 
@@ -71,7 +94,7 @@ FALLBACK_MODELS=google/gemma-4-31b-it:free,thinkingmachines/inkling-small:free,n
 
 ## Взаимодействие с серверной частью через API
 
-Серверная часть запускается на `http://localhost:8080` и предоставляет REST API эндпоинт для анализа логов.
+Серверная часть предоставляет REST API эндпоинт для анализа логов на `http://localhost:8070/api/analyze-logs`.
 
 ### Эндпоинт: `POST /api/analyze-logs`
 
@@ -97,7 +120,7 @@ FALLBACK_MODELS=google/gemma-4-31b-it:free,thinkingmachines/inkling-small:free,n
 
 #### 1. cURL (Terminal)
 ```bash
-curl -X POST http://localhost:8080/api/analyze-logs \
+curl -X POST http://localhost:8070/api/analyze-logs \
   -H "Content-Type: application/json" \
   -d '{
     "logs": "SELECT * FROM users WHERE name = '\''admin'\'' --"
@@ -110,7 +133,7 @@ $body = @{
     logs = "SELECT * FROM users WHERE id = 1 OR 1=1;"
 } | ConvertTo-Json
 
-Invoke-RestMethod -Uri "http://localhost:8080/api/analyze-logs" `
+Invoke-RestMethod -Uri "http://localhost:8070/api/analyze-logs" `
     -Method Post `
     -Body $body `
     -ContentType "application/json"
@@ -120,18 +143,11 @@ Invoke-RestMethod -Uri "http://localhost:8080/api/analyze-logs" `
 ```python
 import requests
 
-url = "http://localhost:8080/api/analyze-logs"
+url = "http://localhost:8070/api/analyze-logs"
 payload = {
     "logs": "GET /admin/config.php?file=../../etc/passwd HTTP/1.1"
 }
 
 response = requests.post(url, json=payload)
 print(response.json())
-```
-
-#### 4. Postman / Insomnia (JSON Body)
-```json
-{
-  "logs": "Unencrypted connection over http://example.com/api/login transmitting password in cleartext."
-}
 ```

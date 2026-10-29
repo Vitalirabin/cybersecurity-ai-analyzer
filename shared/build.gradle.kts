@@ -78,7 +78,9 @@ val localPropertiesProvider = providers.provider {
     localProperties
 }
 
-val generateConfigTask = tasks.register<GenerateConfigTask>("generateConfig") {
+abstract class GenerateConfigTestTask : GenerateConfigTask()
+
+val generateConfigTaskTyped = tasks.register<GenerateConfigTask>("generateConfigCustom") {
     openRouterApiKey.set(localPropertiesProvider.map { it.getProperty("OPENROUTER_API_KEY") ?: System.getenv("OPENROUTER_API_KEY") ?: "" })
     cloudBaseUrl.set(localPropertiesProvider.map { it.getProperty("CLOUD_BASE_URL") ?: System.getenv("CLOUD_BASE_URL") ?: "" })
     cloudModel.set(localPropertiesProvider.map { it.getProperty("CLOUD_MODEL") ?: System.getenv("CLOUD_MODEL") ?: "" })
@@ -103,18 +105,20 @@ kotlin {
     }
 
     jvm("desktop")
+    wasmJs {
+        browser()
+        binaries.executable()
+    }
 
     sourceSets {
         commonMain {
-            kotlin.srcDir(generateConfigTask)
+            kotlin.srcDir(generateConfigTaskTyped)
             dependencies {
                 implementation(compose.runtime)
                 implementation(compose.foundation)
                 implementation(compose.material3)
                 implementation(compose.ui)
 
-                implementation(libs.ui.tooling.preview)
-                implementation(libs.ui.tooling)
                 implementation(libs.androidx.lifecycle.viewmodel.compose)
                 implementation(libs.ktor.client.core)
                 implementation(libs.ktor.client.content.negotiation)
@@ -124,7 +128,6 @@ kotlin {
                 api(libs.koin.core)
                 api(libs.koin.compose)
                 api(libs.koin.compose.viewmodel)
-                api(libs.koin.logger.slf4j)
             }
         }
 
@@ -138,6 +141,10 @@ kotlin {
             implementation(compose.desktop.currentOs)
             implementation(libs.ktor.client.cio)
             implementation(libs.kotlinx.coroutines.swing)
+        }
+
+        wasmJsMain.dependencies {
+            implementation(libs.ktor.client.cio)
         }
     }
 }

@@ -1,3 +1,3 @@
 package com.cybersecurity.aianalyzer.util
 
-actual fun getPlatformServerUrl(): String = "http://localhost:8080"
+actual fun getPlatformServerUrl(): String = "http://localhost:8070"

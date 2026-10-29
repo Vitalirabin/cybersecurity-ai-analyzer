@@ -7,7 +7,7 @@ SERVER_PID=$!
 
 trap "echo 'Stopping Server...'; kill $SERVER_PID 2>/dev/null || true" EXIT
 
-echo "Waiting for Server to start (port 8080)..."
+echo "Waiting for Server to start (port 8070)..."
 sleep 3
 
 echo "Starting Desktop App..."
